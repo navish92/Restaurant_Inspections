@@ -15,7 +15,12 @@ df.rename(columns={'Latitude':'lat','Longitude':'lon'},inplace=True)
 
 df_preds = pd.read_csv("test_data_with_predictions.csv")
 
-
+df.rename(columns={'businessname':'Restaurant Name','review_count':'Yelp Reviews','rating':'Yelp Rating','price':'Price Category',
+                      'categories_clean':'Category','address':'Address','zip':'Zipcode','historic_routine_ins_count':'Historic Inspections Count',
+                      'failed_ins_count':'Failed Inspection Count','most_recent_previous_ins':'Most Recent Prior Inspecton Result',
+                      '2nd_most_recent_previous_ins':'Second Most Recent Inspection Result','target':'Inspection Result'},inplace=True)
+df['Zipcode'] = df['Zipcode'].map(lambda x: "0"+str(x))
+# df[]
 # Sidebar Condiguration
 pages = ["Predict", "Explore Data"]
 
@@ -114,10 +119,39 @@ if page == "Explore Data":
  Feel free to use thes filter options to look at narrower set of restaurants**
  ''')
     
+    features = ['Restaurant Name', 'Inspection Result', 'Yelp Reviews', 'Yelp Rating', 'Price Category', 'Category', 'Address', 'Zipcode', 
+                'Historic Inspections Count', 'Failed Inspection Count','Most Recent Prior Inspecton Result','Second Most Recent Inspection Result']
+    
+    filter_status = st.radio("Filter Data?",["Yes","No"],index=1)
+    
     st.write("")
+    if filter_status == "Yes":
+        ins_num = st.multiselect("Inspection Result",[1,0],default=[])
+        zipco = st.multiselect('Select Zip Code', np.sort(df.Zipcode.unique()), default = [])
+#         ins_num = [1 if x == 'P' else 0 for x in ins_result]
+        
+        if not ins_num:
+            ins_num = [1,0]
+            
+        zipco = np.sort(df.Zipcode.unique()) if len(zipco) == 0 else zipco
+        mask = (df['Zipcode'].isin(zipco)) & (df['Inspection Result'].isin(ins_num))
+        print(mask)
+        st.write(ins_num)
+        rows = len(df.loc[mask,:])
+        st.write(f"Displaying {rows} restaurants")
 
-    st.subheader("Map of Restaurants")
-    st.map(df.dropna(subset=['location']).loc[:,['lat','lon']])
+        st.write("")
+        st.subheader("Map of Restaurants")
+        st.map(df.dropna(subset=['location']).loc[mask,['lat','lon']])
+        st.write("")
+        st.dataframe(df.loc[mask,features])
+      
+        
+    else:
+        st.dataframe(df.loc[:,features])
+        st.write("")
+        st.subheader("Map of Restaurants")
+        st.map(df.dropna(subset=['location']).loc[:,['lat','lon']])
 
 
 
