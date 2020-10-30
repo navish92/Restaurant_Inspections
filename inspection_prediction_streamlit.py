@@ -1,5 +1,9 @@
 """
-Python Script to render 'Restaurant Inspection Outcome Prediction' on a webpage using Streamlit.
+Python Script to render 'Restaurant Inspection Outcomes' on a webpage using Streamlit & a bit of HTML.
+
+The app has two distinct portions that are individually accessible through a sidebar:
+1. Predict - For generating restuarant predictions using the model developed, based on the custom criteria that can be entered by the user.
+2. Explore Data - Explore the restaurants whose data was used to create the model itself. The information can be filtered using their most        recent inspection result & zipcode. All relevant historical inspection information about the restaurant can be viewed on a map.
 """
 
 import streamlit as st
@@ -9,18 +13,25 @@ import matplotlib.pyplot as plt
 import pickle
 from sklearn.linear_model import LogisticRegression
 
-# Loading Dataframes
+# Loading Data for the "Explore Data" section
 df = pd.read_csv("rest_post_eda.csv",index_col=0)
-df.rename(columns={'Latitude':'lat','Longitude':'lon'},inplace=True)
+df.rename(columns={},inplace=True)
 
-df_preds = pd.read_csv("test_data_with_predictions.csv")
+# Making the column names more display friendly
+df.rename(columns={'businessname':'Restaurant Name', 'review_count':'# Yelp Reviews', 'rating':'Yelp Rating', 'price':'Price Category',
+                   'categories_clean':'Food Category', 'address':'Address', 'zip':'Zipcode', 'historic_routine_ins_count':\
+                   '# Inspections', 'failed_ins_count':'# Failed', 'most_recent_previous_ins':\
+                   'Most Recent Prior Inspecton Result', '2nd_most_recent_previous_ins':'2nd Most Recent Inspection Result', \
+                   'target':'Inspection Result','Latitude':'lat','Longitude':'lon'},inplace=True)
 
-df.rename(columns={'businessname':'Restaurant Name','review_count':'Yelp Reviews','rating':'Yelp Rating','price':'Price Category',
-                      'categories_clean':'Category','address':'Address','zip':'Zipcode','historic_routine_ins_count':'Historic Inspections Count',
-                      'failed_ins_count':'Failed Inspection Count','most_recent_previous_ins':'Most Recent Prior Inspecton Result',
-                      '2nd_most_recent_previous_ins':'Second Most Recent Inspection Result','target':'Inspection Result'},inplace=True)
+
+#Zipcode is currently encoded in 4 digits.
 df['Zipcode'] = df['Zipcode'].map(lambda x: "0"+str(x))
-# df[]
+
+
+# df_preds = pd.read_csv("test_data_with_predictions.csv")
+
+
 # Sidebar Condiguration
 pages = ["Predict", "Explore Data"]
 
@@ -35,37 +46,21 @@ sidebar_gradient = """
     color: black; }
 </style>
 """
-# ff3333 #ff5c33
 st.sidebar.markdown(sidebar_gradient,  unsafe_allow_html=True)
 
-
-# "Historical Restaurant Inspection Data","Restaurant Inspection Prediction"
-
-# Background Image for body
-Body_html = """
-  <style>
-   body{
-    background-image: url(https://uca1e5566a673f42cc568195e555.previews.dropboxusercontent.com/p/thumb/AA9aE9wrHEeFLmCsFdopoTTB4xfz4Qmz28z6sDCi5PsiOFKknblSdsSoqrJ-qpi7y0mUOe_cWthHDi6nIfQVFFGISFPozme4QEvB6uu-8EqU5ypJvlnchbj4ZMOjm66Pz8PQtrlCgWjLAzO4fqrSAwXle8xBqRoKL72d_mcc5d4sOk0wfqv5EGBMbQVHGoymfQT2I8gDWa9HqImRPxSm6mmq4JImBC4Lc_8nldKbXiqFQVZvCUJB4WfQkryUuowGJOo63OVPWdq7ObFSGyWSb_T1zsvo3jHL5l5SqR0I6Mt6r2BOPohMf176iBdZRPAalv4qjdumZCrKlsLdq-xevwX5RYOd4tKn_sH16iTqo2iSkNLdsbs7keeyBsKGubSHHDEjvK1n3jXvtELMm9RaaTP5/p.jpeg?size=1600x1200&size_mode=3);
-    
-        background-size: cover;
-
-  
-  }
-</style>
-"""
-st.markdown(Body_html, unsafe_allow_html=True) 
 
 # Prediction Text
 if page == "Predict":
     st.title("Restaurant Inspection Prediction")
     st.write('''
 ## Welcome!
-### This webpage predicts the outcome of a restaurant's health inspection.  
+### This page predicts the outcome of a restaurant's health inspection.  
    
 Just select the correct values below to **predict the outcome**!  
 
     ''')
-
+    
+    # Information input by the user & necessary transformation
     historic_ins_count = st.number_input("Number of Past Inspections", min_value = 2, value = 5, step = 1)
     passed_ins_count = st.number_input("Number of Succesful Past Inspections", min_value = 1, value = 3, step = 1)
     most_recent_ins = st.radio("Result of Most Recent Inspection",['Pass','Fail'], index = 0)
@@ -81,6 +76,7 @@ Just select the correct values below to **predict the outcome**!
     passed_ins_ratio = passed_ins_count/historic_ins_count
     failed_ins_ratio = failed_ins_count/historic_ins_count
 
+    #Pre-trained Logistic Regression model to be used for predictions
     with open("logreg_model.pickle", "rb") as model_pickle:
         random_model = pickle.load(model_pickle)
     
@@ -91,7 +87,6 @@ Just select the correct values below to **predict the outcome**!
                           failed_ins_count, failed_ins_count, second_most_recent_ins_number, passed_ins_ratio, failed_ins_ratio]).reshape(1,-1)
 
     prediction = random_model.predict(variables)
-    print(int(prediction))
 
     predict_button = st.button("Predict")
     
@@ -100,10 +95,12 @@ Just select the correct values below to **predict the outcome**!
             st.write(f'Expected Inspection Outcome:')
             if int(prediction):
                 st.markdown('## **PASS**')
-                st.balloons()
+#                 st.balloons()
+                predict_button = 0
             else:
 
                 st.markdown('## **FAIL**')
+                predict_button = 0
 
 
             st.write("\n\nFeel Free to keep changing the values")
@@ -112,33 +109,39 @@ Just select the correct values below to **predict the outcome**!
     
        
 if page == "Explore Data":
+    
     st.title("Historical Inspections Data for Boston Restaurants")
     st.write("")
     st.markdown('''
  **View the inspections data for each restaurant that was used to develop the model.  
- Feel free to use thes filter options to look at narrower set of restaurants**
+ Feel free to use the filter options below to look at narrower set of restaurants**
  ''')
     
-    features = ['Restaurant Name', 'Inspection Result', 'Yelp Reviews', 'Yelp Rating', 'Price Category', 'Category', 'Address', 'Zipcode', 
-                'Historic Inspections Count', 'Failed Inspection Count','Most Recent Prior Inspecton Result','Second Most Recent Inspection Result']
+    features = ['Restaurant Name', 'Inspection Result', '# Yelp Reviews', 'Yelp Rating', 'Price Category', 'Food Category', \
+                'Address', 'Zipcode', '# Inspections', '# Failed', 'Most Recent Prior Inspecton Result', \
+                '2nd Most Recent Inspection Result']
     
     filter_status = st.radio("Filter Data?",["Yes","No"],index=1)
     
     st.write("")
     if filter_status == "Yes":
-        ins_num = st.multiselect("Inspection Result",[1,0],default=[])
+        ins_num = st.multiselect("Inspection Result",['Pass','Fail'],default=[])
         zipco = st.multiselect('Select Zip Code', np.sort(df.Zipcode.unique()), default = [])
-#         ins_num = [1 if x == 'P' else 0 for x in ins_result]
         
+        ins_results_dict = {'Pass':1,'Fail': 0}                                              
         if not ins_num:
             ins_num = [1,0]
-            
+        else:
+            ins_num = [ins_results_dict.get(x,0) for x in ins_num]
+                                                      
         zipco = np.sort(df.Zipcode.unique()) if len(zipco) == 0 else zipco
         mask = (df['Zipcode'].isin(zipco)) & (df['Inspection Result'].isin(ins_num))
-        print(mask)
-        st.write(ins_num)
+#         print(mask)
+        print(ins_num)
+                                                      
         rows = len(df.loc[mask,:])
-        st.write(f"Displaying {rows} restaurants")
+        st.write("")
+        st.write(f"**Displaying {rows} restaurants**")
 
         st.write("")
         st.subheader("Map of Restaurants")
@@ -148,11 +151,12 @@ if page == "Explore Data":
       
         
     else:
-        st.dataframe(df.loc[:,features])
-        st.write("")
         st.subheader("Map of Restaurants")
         st.map(df.dropna(subset=['location']).loc[:,['lat','lon']])
-
+        st.write("")
+        st.dataframe(df.loc[:,features])
+#         
+        
 
 
 
