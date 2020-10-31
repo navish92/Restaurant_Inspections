@@ -38,7 +38,7 @@ The latest inspection result for a given result will be used as the target varia
 
 **Data Collection, Cleaning, EDA & Feature Engineering**
 
-*Inspection Data*
+*Inspection Data*  
 Each restaurant gets inspected multiple times which has an overall result and within each inspection, a restaurant can have multiple violations. The historical inspections data contains a new line of entry for each violation within a given inspection for each restaurant. The overall result & result data of each inspection is recorded on every line, while the violation itself changes line to line.  
 
 Some of the post important features here that will be relevant later can be read about [here]
@@ -56,12 +56,12 @@ The overall data was reduced to one row per restaurant and the following feature
 1. Most recent prior inspection result
 2. Second most recent prior inspection result
 3. Total # of Inspections
-3. # of Total Inspections 
-4. # of Inspections Pass
+3. \# of Total Inspections 
+4. \# of Inspections Pass
 5. Ratio of Inspections Passed
 6. Ratio of Inspections Failed
 
-*Yelp Data*
+*Yelp Data*  
 Using the Yelp API, a given restaurant's name & geographical information was used to get a potential match for the restaurant in Yelp's Database.  
 The restuarant's current rating, # of reviews, price category & food category were obtained.
 
@@ -69,18 +69,33 @@ Finally, all categorical data was imputed & missing values were dealt with.
 
 **Classification Modeling, Optimization Processing & Hyperparameter Tuning**
 
-The following models from the sci-kit learn library were used to generate predictions - **KNearest Neighbors, Logistic Regression,** and **Random Forest Classifier.**
-Based on initial results, features were dropped iteratively using Regularization, Feature Importances & Coefficients, while evaluating the F1 score, Precision & Recall.
-Additonally, since the dataset was imbalanced (with a far greater number of fail predictions), oversampling via **RandomOverSampler** was used to create a balanced dataset.
-Finally, GridSearchCV was deployed to find the most optimized parameters for the classification models, using an F1 scoring method.
+The following models from the sci-kit learn library were used to generate predictions - **KNearest Neighbors, Logistic Regression,** and **Random Forest Classifier.** Cross-validation was employed using **StratifiedKold splits** for training & validation. Based on initial results, features were dropped iteratively using Regularization, Feature Importances & Coefficients, while evaluating the **Accuracy, F1 score, Precision & Recall**. Additonally, since the dataset was imbalanced (with a far greater number of fail predictions), oversampling via **RandomOverSampler** was used to create a balanced dataset. Finally, using a **pipeline** to oversample, scale & predict, **GridSearchCV** was deployed to find the most optimized parameters for the classification models, using an **F1 scoring method**.
 
 **Scoring**
 
-The **F1 score** was chosen as the evaluation metric to optimize. This is because it was vital to get as many predictions as possible correct, while minimizing the number of wrong predictions. Since, regardless of whether the restaurant Passes or Fails, it was important the prediction was done correctly in either instance. 
+The **F1 score** was chosen as the evaluation metric to optimize. This is because it was vital to get as many predictions as possible correct, while minimizing the number of wrong predictions. Since, regardless of whether the restaurant Passes or Fails, it was important the prediction was done correctly in either instance, while penalizing for wrong predictions. 
 
 ### Results
 
+Logistic Regression was used as the final with no regularization penalty. The training data itself was oversampled (using RandomOverSampler), before being used to fit the model. The training & test variables were scaled using StandardScaler.  
+
+Predictions on the test (holdout) dataset yielded an **F1 score of 0.77 for 'Fail' and 0.35 for 'Pass'** with an overall **accuracy of 0.66 and AUC score of 0.61**. While the True Negatives (Fail results) were captured fairly well, the model did poorly in capturing 'Pass' targets, for maximizing True Positives and minimizing False Positives/Negatives. 
+
+**AUC Curve Plot**
+
+**Confusion matrix**
+
+**Feature Importances
+
+The top 5 features that contributed to the model's predictive power were the 'Most recent previous inspection result', 'Failed Inspection Count', 'Passed Inspection Count', 'Yelp Rating' & 'Historic # Routine Inspections.' Their respective contributions can be viewed in the graph below. The important features are not surprising, but is definitely  a missing piece of info, since a recent pass is heavily influencing the target variable's result and a restaurant could have just happenned to have passed the most recent prior inspection. Therefore
 
 
+
+
+**Next Steps**
+
+Looking at the graph below, a huge number of the prediction probabilities are centered around the 0.5 value. Additional features such as # of severe violations historically may help more weight to the model.  
+
+Additionally, a model should be developed that can work on predictions for restaurants with little to no historical inspection results. Lastly, textual reviews from Yelp should be parsed and used for positive/negative mentions of hygience & cleanliness for the restaurants.
 
 
