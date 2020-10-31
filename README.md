@@ -83,18 +83,21 @@ Predictions on the test (holdout) dataset yielded an **F1 score of 0.77 for 'Fai
 
 **AUC Curve Plot**
 
+![ROC AUC Curve](./Visuals/roc_auc_curve.png)
 **Confusion matrix**
 
-**Feature Importances
+![Confusion Matrix](./Visuals/confusion_matrix.png)
+**Feature Importances**
 
 The top 5 features that contributed to the model's predictive power were the **'Most recent previous inspection result', 'Failed Inspection Count', 'Passed Inspection Count', 'Yelp Rating' & 'Historic # of Routine Inspections.'** Their respective contributions can be viewed in the graph below. The important features are definitely missing a piece of crucial information, as can be observed from the F1 score. A recent pass is heavily influencing the target variable's result and a restaurant could have just happenned to have passed the most recent prior inspection, while failing all inspections prior to this. 
 
-
-
+![Feature Importances](./Visuals/feature_importances.png)
 
 **Next Steps**
 
 Looking at the graph below, a huge number of the prediction probabilities are centered around the 0.5 value. Additional features such as # of severe violations historically may help more weight to the model.  
+
+![Prediction Probabilities](./Visuals/prediction_probability-distributions.png)
 
 Additionally, a model should be developed that can work on predictions for restaurants with little to no historical inspection results. Lastly, textual reviews from Yelp should be parsed and used for positive/negative mentions of hygience & cleanliness on the restaurants.
 
