@@ -11,14 +11,14 @@ In this project, I aim to predict restaurants that are most likely to Pass/Fail 
 ### Learning Goals & Tools Used
 
 1. Data Processing, Modelling & Evaluation
-  * Balanacing datasets (Random Over Sampler, SMOTE, ADASYN, Random Under Sampler)
-  * Classification models (KNearest Neighbors, Logistic Regression, Gaussian Naive Bayes, Decision Trees, Random Forest Classifier, Gradient Boosted Classifier)
-  * Evaluation Metrics (Accuracy, Precision, Recall, F1 score, ROC-AUC curves)
-  * Hyperparameter tuning & model selection
+    * Balanacing datasets (Random Over Sampler, SMOTE, ADASYN, Random Under Sampler)
+    * Classification models (KNearest Neighbors, Logistic Regression, Gaussian Naive Bayes, Decision Trees, Random Forest Classifier, Gradient Boosted Classifier)
+    * Evaluation Metrics (Accuracy, Precision, Recall, F1 score, ROC-AUC curves)
+    * Hyperparameter tuning & model selection
 2. Data Querying using PostgreSQL
 3. Dynamic Visualizations
-  * Tableau
-  * Streamlit
+    * Tableau
+    * Streamlit
   
 A soft goal is to start creating \*.py files that store repeated function calls. These are intended to provide practice with writing code in a scalable manner that can also be re-used easily for future endeavors.
 
