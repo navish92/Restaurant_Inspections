@@ -84,7 +84,8 @@ Just select the correct values below to **predict the outcome**!
 #             'failed_ins_count', 'passed_ins_count', '2nd_most_recent_previous_ins', 'passed_ins_ratio','failed_ins_ratio',]
             
     variables = np.array([review_count_log, rating, historic_ins_count, most_recent_previous_ins, \
-                          failed_ins_count, failed_ins_count, second_most_recent_ins_number, passed_ins_ratio, failed_ins_ratio]).reshape(1,-1)
+                          failed_ins_count, failed_ins_count, second_most_recent_ins_number, \
+                          passed_ins_ratio,failed_ins_ratio]).reshape(1,-1)
 
     prediction = random_model.predict(variables)
 
@@ -96,18 +97,18 @@ Just select the correct values below to **predict the outcome**!
             if int(prediction):
                 st.markdown('## **PASS**')
 #                 st.balloons()
-                predict_button = 0
+                del predict_button
             else:
 
                 st.markdown('## **FAIL**')
-                predict_button = 0
+                del predict_button
 
 
             st.write("\n\nFeel Free to keep changing the values")
         except:
             st.error("There's some error. Sorry!")
     
-       
+#Data Exploration Visual
 if page == "Explore Data":
     
     st.title("Historical Inspections Data for Boston Restaurants")
@@ -125,14 +126,19 @@ if page == "Explore Data":
     
     st.write("")
     if filter_status == "Yes":
-        ins_num = st.multiselect("Inspection Result",['Pass','Fail'],default=[])
+#         ins_num = st.multiselect("Inspection Result",['Pass','Fail'],default=[])
+        ins_num = st.multiselect("Inspection Result",[1, 0],default=[])
         zipco = st.multiselect('Select Zip Code', np.sort(df.Zipcode.unique()), default = [])
         
-        ins_results_dict = {'Pass':1,'Fail': 0}                                              
+#         ins_results_dict = {'Pass':1,'Fail': 0}                                              
         if not ins_num:
             ins_num = [1,0]
-        else:
-            ins_num = [ins_results_dict.get(x,0) for x in ins_num]
+            
+# #         else:
+#             print(ins_num)
+#             print("in else stateemnt")
+#             ins_num = [ins_results_dict.get(x,0) for x in ins_num]
+            
                                                       
         zipco = np.sort(df.Zipcode.unique()) if len(zipco) == 0 else zipco
         mask = (df['Zipcode'].isin(zipco)) & (df['Inspection Result'].isin(ins_num))
