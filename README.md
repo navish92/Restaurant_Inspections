@@ -48,7 +48,7 @@ The following steps were taken to wrangle the data:
 2. The number of days since the previous inspection was calculated. Restaurants get inspected no sooner than 90 days since the previous inspection. If they are inspected anytime sooner, it is due to them failing the prior inspection, that requires a follow-up. Hence, inspections executed in less than 90 days were labeled as 'Re-inspections'.  
 3. A majority of restaurants were found to 'Pass' their 'Re-inspection' but fail their 'Routine Inspection', as seen from the graph below.
 
-[Inspection Types & Results Count](./Visuals/inspections_types_results.png)
+![Inspection Types & Results Count](./Visuals/inspections_types_results.png)
 
 Due to this stark distinction, only 'Routine Inspections' were kept for further analysis.  
 
